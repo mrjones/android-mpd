@@ -9,5 +9,17 @@
     android:layout_height="wrap_content" 
     android:text="Hello World, AndroidMpdClient"
     />
+<Button android:id="@+id/play_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/play_button_text"/>
+<Button android:id="@+id/pause_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/pause_button_text"/>
+<Button android:id="@+id/stop_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/stop_button_text"/>
 </LinearLayout>
 

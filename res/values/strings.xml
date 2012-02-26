@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">AndroidMpdClient</string>
+    <string name="play_button_text">Play</string>
+    <string name="pause_button_text">Pause</string>
+    <string name="stop_button_text">Stop</string>
 </resources>
