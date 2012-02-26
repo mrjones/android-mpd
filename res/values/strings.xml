@@ -3,5 +3,6 @@
     <string name="app_name">AndroidMpdClient</string>
     <string name="play_button_text">Play</string>
     <string name="pause_button_text">Pause</string>
+    <string name="search_button_text">Voice Search</string>
     <string name="stop_button_text">Stop</string>
 </resources>
