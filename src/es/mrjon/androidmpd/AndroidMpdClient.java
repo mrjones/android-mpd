@@ -25,6 +25,7 @@ public class AndroidMpdClient extends Activity {
   private static final int RECOGNIZER_REQUEST_CODE = 12345;
 
   private ListView playListView;
+  private MetadataCache metadataCache;
 
   private void updatePlayList() {
     List<String> playList = new ArrayList<String>();
@@ -47,6 +48,8 @@ public class AndroidMpdClient extends Activity {
       mpd = new MPD("192.168.1.100", 6600);
       Log.v("AndroidMpdClient", "Version:" + mpd.getVersion());
       Log.v("AndroidMpdClient", "Uptime:" + mpd.getUptime());
+
+      this.metadataCache = new MetadataCache(mpd);
 
       playListView = (ListView) findViewById(R.id.play_list_view);
 
@@ -140,14 +143,25 @@ public class AndroidMpdClient extends Activity {
 
       try {
         TextView statusText = (TextView) findViewById(R.id.status_text);
-        statusText.setText("Searching: " + matches.get(0));
 
 
-        List<MPDSong> songs = new ArrayList<MPDSong>(
-          mpd.getMPDDatabase().searchArtist(matches.get(0)));
+        List<String> searches = this.metadataCache.getSearchTerms(matches);
+        String debugString = "";
+        String separator = "";
+        
+        List<MPDSong> songs = new ArrayList<MPDSong>();
+        for (String search : searches) {
+          songs.addAll(mpd.getMPDDatabase().searchArtist(search));
+          debugString += (separator + search);
+          separator = ",";
+          Log.v("AndroidMpdClient - ***** SEARCH ***** ", search);
+        }
+        statusText.setText("Searching: " + debugString);
+
+//          mpd.getMPDDatabase().searchArtist(matches.get(0)));
 
         if (songs.size() == 0) {
-          statusText.setText("No matches found for: " + matches.get(0));
+          statusText.setText("No matches found for: " + debugString);
         } else {
           Log.v("AndroidMpdClient", "PLAYING SONG: " + songs.get(0));
 //          mpd.getMPDPlayer().playId(songs.get(0));
