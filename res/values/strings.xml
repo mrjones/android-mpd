@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">AndroidMpdClient</string>
-    <string name="play_button_text">Play</string>
-    <string name="pause_button_text">Pause</string>
-    <string name="search_button_text">Voice Search</string>
-    <string name="stop_button_text">Stop</string>
+    <string name="play_button_text">&gt;</string>
+    <string name="pause_button_text">||</string>
+    <string name="search_button_text">V</string>
+    <string name="stop_button_text">[]</string>
+    <string name="back_button_text">&lt;&lt;</string>
+    <string name="forward_button_text">&gt;&gt;</string>
 </resources>
