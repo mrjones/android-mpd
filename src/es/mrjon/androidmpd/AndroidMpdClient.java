@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.speech.RecognizerIntent;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ArrayAdapter;
@@ -12,7 +13,7 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 import org.bff.javampd.MPD;
-import org.bff.javampd.exception.MPDConnectionException;
+import org.bff.javampd.exception.MPDException;
 import org.bff.javampd.objects.MPDSong;
 
 import java.util.ArrayList;
@@ -190,5 +191,39 @@ public class AndroidMpdClient extends Activity {
       Log.e("AndroidMpdClient - EXCEPTION", "Error Connecting: " + e.getMessage());
     }
     super.onDestroy();
+  }
+
+  @Override
+  public boolean onKeyDown(int keyCode, KeyEvent event) {
+    final int VOLUME_STEP = 5;
+    if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
+      try {
+        mpd.getMPDPlayer().setVolume(
+          mpd.getMPDPlayer().getVolume() + VOLUME_STEP);
+      } catch (MPDException e) {
+        Log.e("VolumeException", e.toString());
+      }
+      return true;
+    } else if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
+      try {
+        mpd.getMPDPlayer().setVolume(
+          mpd.getMPDPlayer().getVolume() - VOLUME_STEP);
+      } catch (MPDException e) {
+        Log.e("VolumeException", e.toString());
+      }
+      return true;
+    } else {
+      return super.onKeyDown(keyCode, event);
+    }
+  }
+
+  @Override
+  public boolean onKeyUp(int keyCode, KeyEvent event) {
+    if (keyCode == KeyEvent.KEYCODE_VOLUME_UP ||
+        keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
+      // Don't beep
+      return true;
+    }
+    return super.onKeyDown(keyCode, event);
   }
 }
