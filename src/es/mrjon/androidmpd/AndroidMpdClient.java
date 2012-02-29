@@ -24,6 +24,21 @@ public class AndroidMpdClient extends Activity {
   
   private static final int RECOGNIZER_REQUEST_CODE = 12345;
 
+  private ListView playListView;
+
+  private void updatePlayList() {
+    List<String> playList = new ArrayList<String>();
+
+    for (MPDSong song : mpd.getMPDPlaylist().getSongList()) {
+      String rowContents = String.format("%s - %s", song.getArtist(), song.getTitle());
+      playList.add(rowContents);
+      Log.v("AndroidMpdClient", "Appening playlist item: " + rowContents);
+    }
+
+    playListView.setAdapter(
+      new ArrayAdapter<String>(this, R.layout.playlist_row, playList));
+  }
+
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -33,26 +48,17 @@ public class AndroidMpdClient extends Activity {
       Log.v("AndroidMpdClient", "Version:" + mpd.getVersion());
       Log.v("AndroidMpdClient", "Uptime:" + mpd.getUptime());
 
-      ListView playListView = (ListView) findViewById(R.id.play_list_view);
-      List<String> playList = new ArrayList<String>();
+      playListView = (ListView) findViewById(R.id.play_list_view);
 
-      for (MPDSong song : mpd.getMPDPlaylist().getSongList()) {
-        String rowContents = String.format("%s - %s", song.getArtist(), song.getTitle());
-        playList.add(rowContents);
-        Log.v("AndroidMpdClient", "Appening playlist item: " + rowContents);
-      }
-
-//      setListAdapter(new ArrayAdapter<String>(this, R.layout.play_list_view, playList));
-      playListView.setAdapter(
-        new ArrayAdapter<String>(this, R.layout.playlist_row, playList));
-
+      updatePlayList();
     } catch(Exception e) {
       Log.e("AndroidMpdClient - EXCEPTION", "Error Connecting: " + e.getMessage());
     }
 
-    
+    initializeListeners();
+  }
 
-
+  private void initializeListeners() {
     Button playButton = (Button) findViewById(R.id.play_button);
     playButton.setOnClickListener(new OnClickListener() {
         public void onClick(View v) {
@@ -116,7 +122,6 @@ public class AndroidMpdClient extends Activity {
           
         }
       });
-//    } catch(MPDConnectionException e) {
   }
 
   @Override
@@ -157,6 +162,9 @@ public class AndroidMpdClient extends Activity {
       //   new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1,
       //                      matches));
     }
+
+    updatePlayList();
+
     super.onActivityResult(requestCode, resultCode, data);
   }
 
