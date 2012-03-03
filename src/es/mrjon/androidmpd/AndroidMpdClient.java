@@ -137,50 +137,18 @@ public class AndroidMpdClient extends Activity {
       // List<Float> scores = data.getFloatArrayListExtra(
       //  RecognizerIntent.EXTRA_CONFIDENCE_SCORES);
 
-//      int i = 0;
       for (String match : matches) {
         Log.v("AndroidMpdClient - Matches ***** ", match);
-//        Log.v("AndroidMpdClient - SCORE: ", scores.get(i++));
       }
 
-      try {
-        TextView statusText = (TextView) findViewById(R.id.status_text);
+      TextView statusText = (TextView) findViewById(R.id.status_text);
 
+      SearchTask task = new SearchTask(
+        mpd, metadataCache, statusText, playListView);
+      task.execute(matches.toArray(new String[]{}));
+      updatePlayList(); // move off ui thread
 
-        List<String> searches = this.metadataCache.getSearchTerms(matches);
-        String debugString = "";
-        String separator = "";
-        
-        List<MPDSong> songs = new ArrayList<MPDSong>();
-        for (String search : searches) {
-          songs.addAll(mpd.getMPDDatabase().searchArtist(search));
-          debugString += (separator + search);
-          separator = ",";
-          Log.v("AndroidMpdClient - ***** SEARCH ***** ", search);
-        }
-        statusText.setText("Searching: " + debugString);
-
-//          mpd.getMPDDatabase().searchArtist(matches.get(0)));
-
-        if (songs.size() == 0) {
-          statusText.setText("No matches found for: " + debugString);
-        } else {
-          Log.v("AndroidMpdClient", "PLAYING SONG: " + songs.get(0));
-//          mpd.getMPDPlayer().playId(songs.get(0));
-          mpd.getMPDPlaylist().clearPlaylist();
-          mpd.getMPDPlaylist().addSongs(songs);
-          mpd.getMPDPlayer().play();
-        }
-      } catch (Exception e) {
-        Log.e("AndroidMpdClient - EXCEPTION", "Error Connecting: " + e.getMessage());
-      }
-      // wordsList.setAdapter(
-      //   new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1,
-      //                      matches));
     }
-
-    updatePlayList();
-
     super.onActivityResult(requestCode, resultCode, data);
   }
 
