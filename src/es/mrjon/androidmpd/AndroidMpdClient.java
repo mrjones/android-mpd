@@ -57,6 +57,76 @@ public class AndroidMpdClient extends Activity {
     initializeListeners();
   }
 
+  @Override
+  protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    if (requestCode == RECOGNIZER_REQUEST_CODE && resultCode == RESULT_OK) {
+      List<String> matches = data.getStringArrayListExtra(
+        RecognizerIntent.EXTRA_RESULTS);
+      // Only on ICS+
+      // List<Float> scores = data.getFloatArrayListExtra(
+      //  RecognizerIntent.EXTRA_CONFIDENCE_SCORES);
+
+      for (String match : matches) {
+        Log.v("AndroidMpdClient - Matches ***** ", match);
+      }
+
+      TextView statusText = (TextView) findViewById(R.id.status_text);
+
+      UpdatePlaylistTask updatePlaylist = new UpdatePlaylistTask(
+        this, mpd, statusText, playListView);
+
+      SearchTask task = new SearchTask(
+        mpd, metadataCache, statusText, playListView, updatePlaylist);
+      task.execute(matches.toArray(new String[]{}));
+    }
+
+    super.onActivityResult(requestCode, resultCode, data);
+  }
+
+  @Override
+  public void onDestroy() {
+    try {
+      mpd.close();
+    } catch(MPDException e) {
+      Log.e("AndroidMpdClient", "onDestroy", e);
+    }
+    super.onDestroy();
+  }
+
+  @Override
+  public boolean onKeyDown(int keyCode, KeyEvent event) {
+    final int VOLUME_STEP = 5;
+    if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
+      try {
+        mpd.getMPDPlayer().setVolume(
+          mpd.getMPDPlayer().getVolume() + VOLUME_STEP);
+      } catch (MPDException e) {
+        Log.e("VolumeException", e.toString());
+      }
+      return true;
+    } else if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
+      try {
+        mpd.getMPDPlayer().setVolume(
+          mpd.getMPDPlayer().getVolume() - VOLUME_STEP);
+      } catch (MPDException e) {
+        Log.e("VolumeException", e.toString());
+      }
+      return true;
+    } else {
+      return super.onKeyDown(keyCode, event);
+    }
+  }
+
+  @Override
+  public boolean onKeyUp(int keyCode, KeyEvent event) {
+    if (keyCode == KeyEvent.KEYCODE_VOLUME_UP ||
+        keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
+      // Don't beep
+      return true;
+    }
+    return super.onKeyDown(keyCode, event);
+  }
+
   private void initializeListeners() {
     Button playButton = (Button) findViewById(R.id.play_button);
     playButton.setOnClickListener(new OnClickListener() {
@@ -109,74 +179,5 @@ public class AndroidMpdClient extends Activity {
           startActivityForResult(intent, RECOGNIZER_REQUEST_CODE);
         }
       });
-  }
-
-  @Override
-  protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-    if (requestCode == RECOGNIZER_REQUEST_CODE && resultCode == RESULT_OK) {
-      List<String> matches = data.getStringArrayListExtra(
-        RecognizerIntent.EXTRA_RESULTS);
-      // Only on ICS+
-      // List<Float> scores = data.getFloatArrayListExtra(
-      //  RecognizerIntent.EXTRA_CONFIDENCE_SCORES);
-
-      for (String match : matches) {
-        Log.v("AndroidMpdClient - Matches ***** ", match);
-      }
-
-      TextView statusText = (TextView) findViewById(R.id.status_text);
-
-      UpdatePlaylistTask updatePlaylist = new UpdatePlaylistTask(
-        this, mpd, statusText, playListView);
-
-      SearchTask task = new SearchTask(
-        mpd, metadataCache, statusText, playListView, updatePlaylist);
-      task.execute(matches.toArray(new String[]{}));
-    }
-    super.onActivityResult(requestCode, resultCode, data);
-  }
-
-  @Override
-  public void onDestroy() {
-    try {
-      mpd.close();
-    } catch(MPDException e) {
-      Log.e("AndroidMpdClient", "onDestroy", e);
-    }
-    super.onDestroy();
-  }
-
-  @Override
-  public boolean onKeyDown(int keyCode, KeyEvent event) {
-    final int VOLUME_STEP = 5;
-    if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
-      try {
-        mpd.getMPDPlayer().setVolume(
-          mpd.getMPDPlayer().getVolume() + VOLUME_STEP);
-      } catch (MPDException e) {
-        Log.e("VolumeException", e.toString());
-      }
-      return true;
-    } else if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
-      try {
-        mpd.getMPDPlayer().setVolume(
-          mpd.getMPDPlayer().getVolume() - VOLUME_STEP);
-      } catch (MPDException e) {
-        Log.e("VolumeException", e.toString());
-      }
-      return true;
-    } else {
-      return super.onKeyDown(keyCode, event);
-    }
-  }
-
-  @Override
-  public boolean onKeyUp(int keyCode, KeyEvent event) {
-    if (keyCode == KeyEvent.KEYCODE_VOLUME_UP ||
-        keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
-      // Don't beep
-      return true;
-    }
-    return super.onKeyDown(keyCode, event);
   }
 }
