@@ -15,35 +15,32 @@ import org.bff.javampd.objects.MPDSong;
 public class UpdatePlaylistTask extends AsyncTask<Void, Void, List<String> > {
   private final Context context;
   private final MPD mpd;
-  private final TextView statusText;
+  private final StatusDisplay status;
   private final ListView playListView;
 
   public UpdatePlaylistTask(
-    Context context, MPD mpd, TextView statusText, ListView playListView) {
+    Context context, MPD mpd, StatusDisplay status, ListView playListView) {
     this.context = context;
     this.mpd = mpd;
-    this.statusText = statusText;
+    this.status = status;
     this.playListView = playListView;
   }
 
   public List<String> doInBackground(Void... ignored) {
     List<String> playList = new ArrayList<String>();
-//    try {
-      for (MPDSong song : mpd.getMPDPlaylist().getSongList()) {
-        String rowContents =
-          String.format("%s - %s", song.getArtist(), song.getTitle());
-        playList.add(rowContents);
-        Log.v("AndroidMpdClient", "Appening playlist item: " + rowContents);
-      }
-//    } catch (MPDException e) {
-//      Log.e("es.mrjon.UpdatePlaylisTask", "Error fetching playlist", e);
-//      statusText.setText("Error updating playlist.");
-//    }
+
+    for (MPDSong song : mpd.getMPDPlaylist().getSongList()) {
+      String rowContents =
+        String.format("%s - %s", song.getArtist(), song.getTitle());
+      playList.add(rowContents);
+      Log.v("AndroidMpdClient", "Appening playlist item: " + rowContents);
+    }
     return playList;
   }
 
   public void onPostExecute(List<String> playList) {
-    statusText.setText("Playlist updated");
+    status.display("Playlist updated");
+
     playListView.setAdapter(
       new ArrayAdapter<String>(context, R.layout.playlist_row, playList));
   }

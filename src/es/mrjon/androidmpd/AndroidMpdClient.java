@@ -26,7 +26,7 @@ public class AndroidMpdClient extends Activity {
   private static final int RECOGNIZER_REQUEST_CODE = 12345;
 
   private ListView playListView;
-  private TextView statusText; // replace with interface?
+  private StatusDisplay status;
   private MetadataCache metadataCache;
 
   @Override
@@ -48,10 +48,12 @@ public class AndroidMpdClient extends Activity {
     }
 
     playListView = (ListView) findViewById(R.id.play_list_view);
-    statusText = (TextView) findViewById(R.id.status_text);
+
+    TextView statusTextView = (TextView) findViewById(R.id.status_text);
+    status = new TextViewStatusDisplay(statusTextView);
 
     UpdatePlaylistTask task = new UpdatePlaylistTask(
-      this, mpd, statusText, playListView);
+      this, mpd, status, playListView);
     task.execute();
 
     initializeListeners();
@@ -70,13 +72,11 @@ public class AndroidMpdClient extends Activity {
         Log.v("AndroidMpdClient - Matches ***** ", match);
       }
 
-      TextView statusText = (TextView) findViewById(R.id.status_text);
-
       UpdatePlaylistTask updatePlaylist = new UpdatePlaylistTask(
-        this, mpd, statusText, playListView);
+        this, mpd, status, playListView);
 
       SearchTask task = new SearchTask(
-        mpd, metadataCache, statusText, playListView, updatePlaylist);
+        mpd, metadataCache, status, playListView, updatePlaylist);
       task.execute(matches.toArray(new String[]{}));
     }
 

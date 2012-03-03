@@ -15,25 +15,25 @@ public class SearchTask extends AsyncTask<String, String, List<MPDSong> > {
   private final MetadataCache metadataCache;
   private final AsyncTask<Void, ?, ?> successCallback;
 
-  private final TextView statusText;
+  private final StatusDisplay status;
   private final ListView playListView;
 
   public SearchTask(
     MPD mpd,
     MetadataCache metadataCache,
-    TextView statusText,
+    StatusDisplay status,
     ListView playListView,
     /*@Nullable*/ AsyncTask<Void, ?, ?> successCallback) {
 
     this.mpd = mpd;
     this.metadataCache = metadataCache;
-    this.statusText = statusText;
+    this.status = status;
     this.playListView = playListView;
     this.successCallback = successCallback;
   }
 
   public void onPreExecute() {
-    statusText.setText("Searching...");
+    status.display("Searching...");
   }
 
   public List<MPDSong> doInBackground(String... searchTerms) {
@@ -63,15 +63,15 @@ public class SearchTask extends AsyncTask<String, String, List<MPDSong> > {
 
   public void onProgressUpdate(String... updates) {
     if (updates != null && updates.length > 0) {
-      statusText.setText("Searching '" + updates[0] + "'...");
+      status.display("Searching '" + updates[0] + "'...");
     }
   }
 
   public void onPostExecute(List<MPDSong> r) {
     if (r == null) {
-      statusText.setText("Error performing search.");
+      status.display("Error performing search.");
     } else {
-      statusText.setText("Found " + r.size() + " songs.");
+      status.display("Found " + r.size() + " songs.");
       if (successCallback != null) {
         successCallback.execute();
       }
