@@ -116,6 +116,7 @@ public class AndroidMpdClient extends Activity {
     if (requestCode == RECOGNIZER_REQUEST_CODE && resultCode == RESULT_OK) {
       List<String> matches = data.getStringArrayListExtra(
         RecognizerIntent.EXTRA_RESULTS);
+      // Only on ICS+
       // List<Float> scores = data.getFloatArrayListExtra(
       //  RecognizerIntent.EXTRA_CONFIDENCE_SCORES);
 
