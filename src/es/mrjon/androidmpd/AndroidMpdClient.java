@@ -46,7 +46,8 @@ public class AndroidMpdClient extends Activity {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.main);
     try {
-      mpd = new MPD("192.168.1.100", 6600);
+//      mpd = new MPD("192.168.1.100", 6600);
+      mpd = new MPD("192.168.1.104", 6600);
       Log.v("AndroidMpdClient", "Version:" + mpd.getVersion());
       Log.v("AndroidMpdClient", "Uptime:" + mpd.getUptime());
 
