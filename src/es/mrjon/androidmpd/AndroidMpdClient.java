@@ -15,7 +15,7 @@ import android.widget.TextView;
 import org.bff.javampd.MPD;
 import org.bff.javampd.exception.MPDException;
 import org.bff.javampd.objects.MPDSong;
-
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,6 +33,7 @@ public class AndroidMpdClient extends Activity {
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.main);
+
     try {
       mpd = new MPD("192.168.1.100", 6600);
 //      mpd = new MPD("192.168.1.104", 6600);
@@ -40,17 +41,18 @@ public class AndroidMpdClient extends Activity {
       Log.v("AndroidMpdClient", "Uptime:" + mpd.getUptime());
 
       this.metadataCache = new MetadataCache(mpd);
-
-      playListView = (ListView) findViewById(R.id.play_list_view);
-      statusText = (TextView) findViewById(R.id.status_text);
-
-      UpdatePlaylistTask task = new UpdatePlaylistTask(
-        this, mpd, statusText, playListView);
-      task.execute();
-
-    } catch(Exception e) {
-      Log.e("AndroidMpdClient - EXCEPTION", "Error Connecting: " + e.getMessage());
+    } catch(MPDException e) {
+      Log.e("AndroidMpdClient", "onCreate", e);
+    } catch(UnknownHostException e) {
+      Log.e("AndroidMpdClient", "onCreate", e);
     }
+
+    playListView = (ListView) findViewById(R.id.play_list_view);
+    statusText = (TextView) findViewById(R.id.status_text);
+
+    UpdatePlaylistTask task = new UpdatePlaylistTask(
+      this, mpd, statusText, playListView);
+    task.execute();
 
     initializeListeners();
   }
@@ -61,28 +63,18 @@ public class AndroidMpdClient extends Activity {
         public void onClick(View v) {
           try {
             mpd.getMPDPlayer().play();
-          } catch(Exception e) {
-            Log.e("AndroidMpdClient - EXCEPTION", "Error Connecting: " + e.getMessage());
+          } catch(MPDException e) {
+            Log.e("AndroidMpdClient", "Play", e);
           }
         }
       });
-    // Button stopButton = (Button) findViewById(R.id.stop_button);
-    // stopButton.setOnClickListener(new OnClickListener() {
-    //     public void onClick(View v) {
-    //       try {
-    //         mpd.getMPDPlayer().stop();
-    //       } catch(Exception e) {
-    //         Log.e("AndroidMpdClient - EXCEPTION", "Error Connecting: " + e.getMessage());
-    //       }
-    //     }
-    //   });
     Button pauseButton = (Button) findViewById(R.id.pause_button);
     pauseButton.setOnClickListener(new OnClickListener() {
         public void onClick(View v) {
           try {
             mpd.getMPDPlayer().pause();
-          } catch(Exception e) {
-            Log.e("AndroidMpdClient - EXCEPTION", "Error Connecting: " + e.getMessage());
+          } catch(MPDException e) {
+            Log.e("AndroidMpdClient", "Pause", e);
           }
         }
       });
@@ -91,8 +83,8 @@ public class AndroidMpdClient extends Activity {
         public void onClick(View v) {
           try {
             mpd.getMPDPlayer().playPrev();
-          } catch(Exception e) {
-            Log.e("AndroidMpdClient - EXCEPTION", "Error Connecting: " + e.getMessage());
+          } catch(MPDException e) {
+            Log.e("AndroidMpdClient", "Back ", e);
           }
         }
       });
@@ -101,8 +93,8 @@ public class AndroidMpdClient extends Activity {
         public void onClick(View v) {
           try {
             mpd.getMPDPlayer().playNext();
-          } catch(Exception e) {
-            Log.e("AndroidMpdClient - EXCEPTION", "Error Connecting: " + e.getMessage());
+          } catch(MPDException e) {
+            Log.e("AndroidMpdClient", "Click", e);
           }
         }
       });
@@ -115,8 +107,6 @@ public class AndroidMpdClient extends Activity {
                           RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
           intent.putExtra(RecognizerIntent.EXTRA_PROMPT, "Search by artist:");
           startActivityForResult(intent, RECOGNIZER_REQUEST_CODE);
-
-          
         }
       });
   }
@@ -149,8 +139,8 @@ public class AndroidMpdClient extends Activity {
   public void onDestroy() {
     try {
       mpd.close();
-    } catch(Exception e) {
-      Log.e("AndroidMpdClient - EXCEPTION", "Error Connecting: " + e.getMessage());
+    } catch(MPDException e) {
+      Log.e("AndroidMpdClient", "onDestroy", e);
     }
     super.onDestroy();
   }
