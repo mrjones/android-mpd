@@ -26,36 +26,28 @@ public class AndroidMpdClient extends Activity {
   private static final int RECOGNIZER_REQUEST_CODE = 12345;
 
   private ListView playListView;
+  private TextView statusText; // replace with interface?
   private MetadataCache metadataCache;
-
-  private void updatePlayList() {
-    List<String> playList = new ArrayList<String>();
-
-    for (MPDSong song : mpd.getMPDPlaylist().getSongList()) {
-      String rowContents = String.format("%s - %s", song.getArtist(), song.getTitle());
-      playList.add(rowContents);
-      Log.v("AndroidMpdClient", "Appening playlist item: " + rowContents);
-    }
-
-    playListView.setAdapter(
-      new ArrayAdapter<String>(this, R.layout.playlist_row, playList));
-  }
 
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.main);
     try {
-//      mpd = new MPD("192.168.1.100", 6600);
-      mpd = new MPD("192.168.1.104", 6600);
+      mpd = new MPD("192.168.1.100", 6600);
+//      mpd = new MPD("192.168.1.104", 6600);
       Log.v("AndroidMpdClient", "Version:" + mpd.getVersion());
       Log.v("AndroidMpdClient", "Uptime:" + mpd.getUptime());
 
       this.metadataCache = new MetadataCache(mpd);
 
       playListView = (ListView) findViewById(R.id.play_list_view);
+      statusText = (TextView) findViewById(R.id.status_text);
 
-      updatePlayList();
+      UpdatePlaylistTask task = new UpdatePlaylistTask(
+        this, mpd, statusText, playListView);
+      task.execute();
+
     } catch(Exception e) {
       Log.e("AndroidMpdClient - EXCEPTION", "Error Connecting: " + e.getMessage());
     }
@@ -143,11 +135,12 @@ public class AndroidMpdClient extends Activity {
 
       TextView statusText = (TextView) findViewById(R.id.status_text);
 
-      SearchTask task = new SearchTask(
-        mpd, metadataCache, statusText, playListView);
-      task.execute(matches.toArray(new String[]{}));
-      updatePlayList(); // move off ui thread
+      UpdatePlaylistTask updatePlaylist = new UpdatePlaylistTask(
+        this, mpd, statusText, playListView);
 
+      SearchTask task = new SearchTask(
+        mpd, metadataCache, statusText, playListView, updatePlaylist);
+      task.execute(matches.toArray(new String[]{}));
     }
     super.onActivityResult(requestCode, resultCode, data);
   }

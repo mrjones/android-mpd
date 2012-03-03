@@ -13,6 +13,7 @@ import org.bff.javampd.objects.MPDSong;
 public class SearchTask extends AsyncTask<String, String, List<MPDSong> > {
   private final MPD mpd;
   private final MetadataCache metadataCache;
+  private final AsyncTask<Void, ?, ?> successCallback;
 
   private final TextView statusText;
   private final ListView playListView;
@@ -21,12 +22,14 @@ public class SearchTask extends AsyncTask<String, String, List<MPDSong> > {
     MPD mpd,
     MetadataCache metadataCache,
     TextView statusText,
-    ListView playListView) {
+    ListView playListView,
+    /*@Nullable*/ AsyncTask<Void, ?, ?> successCallback) {
 
     this.mpd = mpd;
     this.metadataCache = metadataCache;
     this.statusText = statusText;
     this.playListView = playListView;
+    this.successCallback = successCallback;
   }
 
   public void onPreExecute() {
@@ -69,6 +72,9 @@ public class SearchTask extends AsyncTask<String, String, List<MPDSong> > {
       statusText.setText("Error performing search.");
     } else {
       statusText.setText("Found " + r.size() + " songs.");
+      if (successCallback != null) {
+        successCallback.execute();
+      }
     }
   }
 }
