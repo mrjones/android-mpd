@@ -12,7 +12,7 @@ import org.bff.javampd.MPD;
 import org.bff.javampd.exception.MPDException;
 import org.bff.javampd.objects.MPDSong;
 
-public class UpdatePlaylistTask extends AsyncTask<Void, Void, List<String> > {
+public class UpdatePlaylistTask extends AsyncTask<Void, Void, List<MPDSongListItem> > {
   private final Context context;
   private final MPD mpd;
   private final StatusDisplay status;
@@ -26,22 +26,22 @@ public class UpdatePlaylistTask extends AsyncTask<Void, Void, List<String> > {
     this.playListView = playListView;
   }
 
-  public List<String> doInBackground(Void... ignored) {
-    List<String> playList = new ArrayList<String>();
+  public List<MPDSongListItem> doInBackground(Void... ignored) {
+    List<MPDSongListItem> playList = new ArrayList<MPDSongListItem>();
 
     for (MPDSong song : mpd.getMPDPlaylist().getSongList()) {
       String rowContents =
         String.format("%s - %s", song.getArtist(), song.getTitle());
-      playList.add(rowContents);
+      playList.add(new MPDSongListItem(song));
       Log.v("AndroidMpdClient", "Appening playlist item: " + rowContents);
     }
     return playList;
   }
 
-  public void onPostExecute(List<String> playList) {
+  public void onPostExecute(List<MPDSongListItem> playList) {
     status.display("Playlist updated");
 
     playListView.setAdapter(
-      new ArrayAdapter<String>(context, R.layout.playlist_row, playList));
+      new ArrayAdapter<MPDSongListItem>(context, R.layout.playlist_row, playList));
   }
 }

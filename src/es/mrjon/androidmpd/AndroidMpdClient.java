@@ -12,6 +12,8 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import org.bff.javampd.MPD;
 import org.bff.javampd.exception.MPDException;
 import org.bff.javampd.objects.MPDSong;
@@ -177,6 +179,15 @@ public class AndroidMpdClient extends Activity {
                           RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
           intent.putExtra(RecognizerIntent.EXTRA_PROMPT, "Search by artist:");
           startActivityForResult(intent, RECOGNIZER_REQUEST_CODE);
+        }
+      });
+
+    playListView.setOnItemClickListener(new OnItemClickListener() {
+        public void onItemClick(
+          AdapterView<?> adapter, View view, int position, long id) {
+          MPDSongListItem song = (MPDSongListItem) adapter.getItemAtPosition(position);
+          PlaySongTask task = new PlaySongTask(mpd, status);
+          task.execute(song.getSong());
         }
       });
   }
