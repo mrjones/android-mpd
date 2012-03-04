@@ -187,7 +187,7 @@ public class AndroidMpdClient extends Activity {
           AdapterView<?> adapter, View view, int position, long id) {
           MPDSongListItem song = (MPDSongListItem) adapter.getItemAtPosition(position);
           PlaySongTask task = new PlaySongTask(mpd, status);
-          task.execute(song.getSong());
+          task.execute(song);
         }
       });
   }
