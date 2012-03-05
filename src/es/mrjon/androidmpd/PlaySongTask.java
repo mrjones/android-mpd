@@ -11,6 +11,9 @@ public class PlaySongTask extends AsyncTask<MPDSongListItem, Void, MPDSongListIt
   private final StatusDisplay status;
 
   public PlaySongTask(MPD mpd, StatusDisplay status) {
+    if (mpd == null) { throw new IllegalArgumentException("mpd cannot be null"); }
+    if (status == null) { throw new IllegalArgumentException("status cannot be null"); }
+
     this.mpd = mpd;
     this.status = status;
   }

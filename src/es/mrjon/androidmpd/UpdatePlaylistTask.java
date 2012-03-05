@@ -20,6 +20,11 @@ public class UpdatePlaylistTask extends AsyncTask<Void, Void, List<MPDSongListIt
 
   public UpdatePlaylistTask(
     Context context, MPD mpd, StatusDisplay status, ListView playListView) {
+    if (context == null) { throw new IllegalArgumentException("context cannot be null"); }
+    if (mpd == null) { throw new IllegalArgumentException("mpd cannot be null"); }
+    if (status == null) { throw new IllegalArgumentException("status cannot be null"); }
+    if (playListView == null) { throw new IllegalArgumentException("playListView cannot be null"); }
+
     this.context = context;
     this.mpd = mpd;
     this.status = status;
@@ -27,6 +32,8 @@ public class UpdatePlaylistTask extends AsyncTask<Void, Void, List<MPDSongListIt
   }
 
   public List<MPDSongListItem> doInBackground(Void... ignored) {
+    if (!mpd.isConnected()) { return null; }
+
     List<MPDSongListItem> playList = new ArrayList<MPDSongListItem>();
 
     for (MPDSong song : mpd.getMPDPlaylist().getSongList()) {
@@ -39,9 +46,14 @@ public class UpdatePlaylistTask extends AsyncTask<Void, Void, List<MPDSongListIt
   }
 
   public void onPostExecute(List<MPDSongListItem> playList) {
-    status.display("Playlist updated");
+    if (playList == null) {
+      // Error in "doInBackground"
+      status.display("Unable to update playlist!");
+    } else {
+      status.display("Playlist updated");
 
-    playListView.setAdapter(
-      new ArrayAdapter<MPDSongListItem>(context, R.layout.playlist_row, playList));
+      playListView.setAdapter(
+        new ArrayAdapter<MPDSongListItem>(context, R.layout.playlist_row, playList));
+    }
   }
 }

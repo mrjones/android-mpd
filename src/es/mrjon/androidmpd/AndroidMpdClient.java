@@ -36,23 +36,31 @@ public class AndroidMpdClient extends Activity {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.main);
 
+    TextView statusTextView = (TextView) findViewById(R.id.status_text);
+    status = new TextViewStatusDisplay(statusTextView);
+
+    playListView = (ListView) findViewById(R.id.play_list_view);
+
+    String hostname = "192.168.1.100";
+    int port = 6600;
+
     try {
-      mpd = new MPD("192.168.1.100", 6600);
-//      mpd = new MPD("192.168.1.104", 6600);
+      mpd = new MPD(hostname, port);
       Log.v("AndroidMpdClient", "Version:" + mpd.getVersion());
       Log.v("AndroidMpdClient", "Uptime:" + mpd.getUptime());
 
       this.metadataCache = new MetadataCache(mpd);
     } catch(MPDException e) {
       Log.e("AndroidMpdClient", "onCreate", e);
+      status.display("Error connecting: " + e.toString());
+      return;
     } catch(UnknownHostException e) {
       Log.e("AndroidMpdClient", "onCreate", e);
+      status.display("Could not connect to: " + hostname + ":" + port);
+      return;
     }
 
-    playListView = (ListView) findViewById(R.id.play_list_view);
 
-    TextView statusTextView = (TextView) findViewById(R.id.status_text);
-    status = new TextViewStatusDisplay(statusTextView);
 
     UpdatePlaylistTask task = new UpdatePlaylistTask(
       this, mpd, status, playListView);
