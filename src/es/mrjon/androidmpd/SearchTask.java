@@ -55,7 +55,7 @@ public class SearchTask extends AsyncTask<String, String, List<MPDSong> > {
       mpd.getMPDPlaylist().addSongs(results);
       mpd.getMPDPlayer().play();
     } catch (MPDException e) {
-      Log.e("es.mrjon.SearchTask", e.toString());
+      Log.e(Constants.LOG_TAG, e.toString());
     }
 
     return results;

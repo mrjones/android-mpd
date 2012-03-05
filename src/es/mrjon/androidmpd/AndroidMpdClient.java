@@ -46,16 +46,16 @@ public class AndroidMpdClient extends Activity {
 
     try {
       mpd = new MPD(hostname, port);
-      Log.v("AndroidMpdClient", "Version:" + mpd.getVersion());
-      Log.v("AndroidMpdClient", "Uptime:" + mpd.getUptime());
+      Log.v(Constants.LOG_TAG, "Version:" + mpd.getVersion());
+      Log.v(Constants.LOG_TAG, "Uptime:" + mpd.getUptime());
 
       this.metadataCache = new MetadataCache(mpd);
     } catch(MPDException e) {
-      Log.e("AndroidMpdClient", "onCreate", e);
+      Log.e(Constants.LOG_TAG, "onCreate", e);
       status.display("Error connecting: " + e.toString());
       return;
     } catch(UnknownHostException e) {
-      Log.e("AndroidMpdClient", "onCreate", e);
+      Log.e(Constants.LOG_TAG, "onCreate", e);
       status.display("Could not connect to: " + hostname + ":" + port);
       return;
     }
@@ -79,7 +79,7 @@ public class AndroidMpdClient extends Activity {
       //  RecognizerIntent.EXTRA_CONFIDENCE_SCORES);
 
       for (String match : matches) {
-        Log.v("AndroidMpdClient - Matches ***** ", match);
+        Log.v(Constants.LOG_TAG, "Voice Recognition Match: " + match);
       }
 
       UpdatePlaylistTask updatePlaylist = new UpdatePlaylistTask(
@@ -96,10 +96,13 @@ public class AndroidMpdClient extends Activity {
   @Override
   public void onDestroy() {
     try {
-      mpd.close();
+      if (mpd != null) {
+        mpd.close();
+      }
     } catch(MPDException e) {
-      Log.e("AndroidMpdClient", "onDestroy", e);
+      Log.e(Constants.LOG_TAG, "onDestroy", e);
     }
+
     super.onDestroy();
   }
 
@@ -111,7 +114,7 @@ public class AndroidMpdClient extends Activity {
         mpd.getMPDPlayer().setVolume(
           mpd.getMPDPlayer().getVolume() + VOLUME_STEP);
       } catch (MPDException e) {
-        Log.e("VolumeException", e.toString());
+        Log.e(Constants.LOG_TAG, "Volumne Up", e);
       }
       return true;
     } else if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
@@ -119,7 +122,7 @@ public class AndroidMpdClient extends Activity {
         mpd.getMPDPlayer().setVolume(
           mpd.getMPDPlayer().getVolume() - VOLUME_STEP);
       } catch (MPDException e) {
-        Log.e("VolumeException", e.toString());
+        Log.e(Constants.LOG_TAG, "Volume Down", e);
       }
       return true;
     } else {
@@ -144,7 +147,7 @@ public class AndroidMpdClient extends Activity {
           try {
             mpd.getMPDPlayer().play();
           } catch(MPDException e) {
-            Log.e("AndroidMpdClient", "Play", e);
+            Log.e(Constants.LOG_TAG, "Play", e);
           }
         }
       });
@@ -154,7 +157,7 @@ public class AndroidMpdClient extends Activity {
           try {
             mpd.getMPDPlayer().pause();
           } catch(MPDException e) {
-            Log.e("AndroidMpdClient", "Pause", e);
+            Log.e(Constants.LOG_TAG, "Pause", e);
           }
         }
       });
@@ -164,7 +167,7 @@ public class AndroidMpdClient extends Activity {
           try {
             mpd.getMPDPlayer().playPrev();
           } catch(MPDException e) {
-            Log.e("AndroidMpdClient", "Back ", e);
+            Log.e(Constants.LOG_TAG, "Back ", e);
           }
         }
       });
@@ -174,7 +177,7 @@ public class AndroidMpdClient extends Activity {
           try {
             mpd.getMPDPlayer().playNext();
           } catch(MPDException e) {
-            Log.e("AndroidMpdClient", "Click", e);
+            Log.e(Constants.LOG_TAG, "Click", e);
           }
         }
       });

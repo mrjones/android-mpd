@@ -25,7 +25,7 @@ public class MetadataCache {
     List<String> searchTerms = new ArrayList<String>();
     try {
       if (artists == null) { update(); }
-      Log.v("MetadataCache", "Considering " +artists.size() + " artists");
+      Log.v(Constants.LOG_TAG, "Considering " + artists.size() + " artists");
       for (String phrase : recognizedPhrases) {
         for (MPDArtist artist : artists) {
           if (artist.getName().toLowerCase().contains(phrase)) {
@@ -33,8 +33,8 @@ public class MetadataCache {
           }
         }
       }
-    } catch (Exception e) {
-      Log.e("MetadataCache ", e.toString());
+    } catch (MPDException e) {
+      Log.e(Constants.LOG_TAG, "getSearchTerms", e);
     }
 
     if (searchTerms.size() == 0) {

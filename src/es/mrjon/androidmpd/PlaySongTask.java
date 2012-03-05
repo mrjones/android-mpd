@@ -20,13 +20,13 @@ public class PlaySongTask extends AsyncTask<MPDSongListItem, Void, MPDSongListIt
 
   public MPDSongListItem doInBackground(MPDSongListItem... songs) {
     if (songs == null || songs.length == 0 || songs[0] == null) {
-      Log.e("PlaySongTask", "No songs passed in!");
+      Log.e(Constants.LOG_TAG, "No songs passed in!");
     } else {
       try {
         mpd.getMPDPlayer().playId(songs[0].getSong());
         return songs[0];
       } catch (MPDException e) {
-        Log.e("PlaySongTask", "mpd.playId", e);
+        Log.e(Constants.LOG_TAG, "mpd.playId", e);
       }
     }
 

@@ -40,7 +40,7 @@ public class UpdatePlaylistTask extends AsyncTask<Void, Void, List<MPDSongListIt
       String rowContents =
         String.format("%s - %s", song.getArtist(), song.getTitle());
       playList.add(new MPDSongListItem(song));
-      Log.v("AndroidMpdClient", "Appening playlist item: " + rowContents);
+      Log.v(Constants.LOG_TAG, "Appening playlist item: " + rowContents);
     }
     return playList;
   }
