@@ -8,4 +8,7 @@
     <string name="back_button_text">&lt;&lt;</string>
     <string name="forward_button_text">&gt;&gt;</string>
     <string name="settings_button_text">*</string>
+    <string name="mpd_server_label_text">Server:</string>
+    <string name="mpd_port_label_text">Port:</string>
+    <string name="save_settings_button_text">Save</string>
 </resources>
