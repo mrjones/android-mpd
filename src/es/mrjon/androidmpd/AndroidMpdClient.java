@@ -32,6 +32,9 @@ public class AndroidMpdClient extends Activity {
   private StatusDisplay status;
   private MetadataCache metadataCache;
 
+  private String hostname = "192.168.1.100";
+  private int port = 6600;
+
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -42,15 +45,25 @@ public class AndroidMpdClient extends Activity {
 
     playListView = (ListView) findViewById(R.id.play_list_view);
 
-    String hostname = "192.168.1.100";
-    int port = 6600;
+    reconnect(hostname, port);
 
+    UpdatePlaylistTask task = new UpdatePlaylistTask(
+      this, mpd, status, playListView);
+    task.execute();
+
+    initializeListeners();
+  }
+
+  private void reconnect(String hostname, int port) {
     try {
+      if (mpd != null && mpd.isConnected()) {
+        mpd.close();
+      }
       mpd = new MPD(hostname, port);
       Log.v(Constants.LOG_TAG, "Version:" + mpd.getVersion());
       Log.v(Constants.LOG_TAG, "Uptime:" + mpd.getUptime());
-
-      this.metadataCache = new MetadataCache(mpd);
+      
+      metadataCache = new MetadataCache(mpd);
     } catch(MPDException e) {
       Log.e(Constants.LOG_TAG, "onCreate", e);
       status.display("Error connecting: " + e.toString());
@@ -60,12 +73,6 @@ public class AndroidMpdClient extends Activity {
       status.display("Could not connect to: " + hostname + ":" + port);
       return;
     }
-
-    UpdatePlaylistTask task = new UpdatePlaylistTask(
-      this, mpd, status, playListView);
-    task.execute();
-
-    initializeListeners();
   }
 
   @Override
@@ -78,13 +85,21 @@ public class AndroidMpdClient extends Activity {
       }
     } else if (requestCode == SELECT_SERVER_CODE) {
       if (resultCode == RESULT_OK) {
-        status.display("Selected server");
+        handleSelectServerResult(data);
       } else {
         status.display("Error selecting server!");
       }
     }
 
     super.onActivityResult(requestCode, resultCode, data);
+  }
+
+  private void handleSelectServerResult(Intent data) {
+    hostname = data.getStringExtra(SelectServerActivity.SERVER);
+    port = data.getIntExtra(SelectServerActivity.PORT, port);
+    status.display("Server: " + hostname + ":" + port);
+
+    reconnect(hostname, port);
   }
 
   private void handleSpeechRecognitionResult(Intent data) {
@@ -211,6 +226,8 @@ public class AndroidMpdClient extends Activity {
     settingsButton.setOnClickListener(new OnClickListener() {
         public void onClick(View v) {
           Intent intent = new Intent(c, SelectServerActivity.class);
+          intent.putExtra(SelectServerActivity.SERVER, hostname);
+          intent.putExtra(SelectServerActivity.PORT, port);
           startActivityForResult(intent, SELECT_SERVER_CODE);
         }
       });
