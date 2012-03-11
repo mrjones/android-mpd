@@ -7,4 +7,5 @@
     <string name="stop_button_text">[]</string>
     <string name="back_button_text">&lt;&lt;</string>
     <string name="forward_button_text">&gt;&gt;</string>
+    <string name="settings_button_text">*</string>
 </resources>

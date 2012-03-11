@@ -1,6 +1,7 @@
 package es.mrjon.androidmpd;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.speech.RecognizerIntent;
@@ -22,10 +23,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class AndroidMpdClient extends Activity {
-  /** Called when the activity is first created. */
   private MPD mpd;
   
-  private static final int RECOGNIZER_REQUEST_CODE = 12345;
+  private static final int RECOGNIZER_REQUEST_CODE = 1;
+  private static final int SELECT_SERVER_CODE = 2;
 
   private ListView playListView;
   private StatusDisplay status;
@@ -60,8 +61,6 @@ public class AndroidMpdClient extends Activity {
       return;
     }
 
-
-
     UpdatePlaylistTask task = new UpdatePlaylistTask(
       this, mpd, status, playListView);
     task.execute();
@@ -71,26 +70,40 @@ public class AndroidMpdClient extends Activity {
 
   @Override
   protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-    if (requestCode == RECOGNIZER_REQUEST_CODE && resultCode == RESULT_OK) {
-      List<String> matches = data.getStringArrayListExtra(
-        RecognizerIntent.EXTRA_RESULTS);
-      // Only on ICS+
-      // List<Float> scores = data.getFloatArrayListExtra(
-      //  RecognizerIntent.EXTRA_CONFIDENCE_SCORES);
-
-      for (String match : matches) {
-        Log.v(Constants.LOG_TAG, "Voice Recognition Match: " + match);
+    if (requestCode == RECOGNIZER_REQUEST_CODE) {
+      if (resultCode == RESULT_OK) {
+        handleSpeechRecognitionResult(data);
+      } else {
+        status.display("Error recognizing speech!");
       }
-
-      UpdatePlaylistTask updatePlaylist = new UpdatePlaylistTask(
-        this, mpd, status, playListView);
-
-      SearchTask task = new SearchTask(
-        mpd, metadataCache, status, playListView, updatePlaylist);
-      task.execute(matches.toArray(new String[]{}));
+    } else if (requestCode == SELECT_SERVER_CODE) {
+      if (resultCode == RESULT_OK) {
+        status.display("Selected server");
+      } else {
+        status.display("Error selecting server!");
+      }
     }
 
     super.onActivityResult(requestCode, resultCode, data);
+  }
+
+  private void handleSpeechRecognitionResult(Intent data) {
+    List<String> matches = data.getStringArrayListExtra(
+      RecognizerIntent.EXTRA_RESULTS);
+    // Only on ICS+
+    // List<Float> scores = data.getFloatArrayListExtra(
+    //  RecognizerIntent.EXTRA_CONFIDENCE_SCORES);
+
+    for (String match : matches) {
+      Log.v(Constants.LOG_TAG, "Voice Recognition Match: " + match);
+    }
+
+    UpdatePlaylistTask updatePlaylist = new UpdatePlaylistTask(
+      this, mpd, status, playListView);
+
+    SearchTask task = new SearchTask(
+      mpd, metadataCache, status, playListView, updatePlaylist);
+    task.execute(matches.toArray(new String[]{}));
   }
 
   @Override
@@ -190,6 +203,15 @@ public class AndroidMpdClient extends Activity {
                           RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
           intent.putExtra(RecognizerIntent.EXTRA_PROMPT, "Search by artist:");
           startActivityForResult(intent, RECOGNIZER_REQUEST_CODE);
+        }
+      });
+
+    Button settingsButton = (Button) findViewById(R.id.settings_button);
+    final Context c = this;
+    settingsButton.setOnClickListener(new OnClickListener() {
+        public void onClick(View v) {
+          Intent intent = new Intent(c, SelectServerActivity.class);
+          startActivityForResult(intent, SELECT_SERVER_CODE);
         }
       });
 
