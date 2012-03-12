@@ -3,6 +3,7 @@ package es.mrjon.androidmpd;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.speech.RecognizerIntent;
 import android.util.Log;
@@ -28,12 +29,15 @@ public class AndroidMpdClient extends Activity {
   private static final int RECOGNIZER_REQUEST_CODE = 1;
   private static final int SELECT_SERVER_CODE = 2;
 
+  private static final String HOSTNAME_PREFERENCE = "HOSTNAME";
+  private static final String PORT_PREFERENCE = "PORT";
+
   private ListView playListView;
   private StatusDisplay status;
   private MetadataCache metadataCache;
 
-  private String hostname = "192.168.1.100";
-  private int port = 6600;
+  private String DEFAULT_HOSTNAME = "192.168.1.100";
+  private int DEFAULT_PORT = 6600;
 
   @Override
   public void onCreate(Bundle savedInstanceState) {
@@ -45,12 +49,15 @@ public class AndroidMpdClient extends Activity {
 
     playListView = (ListView) findViewById(R.id.play_list_view);
 
-    reconnect(hostname, port);
-
+    reconnect();
     initializeListeners();
   }
 
-  private void reconnect(String hostname, int port) {
+  private void reconnect() {
+    SharedPreferences preferences = getPreferences(MODE_PRIVATE);
+    String hostname = preferences.getString(HOSTNAME_PREFERENCE, DEFAULT_HOSTNAME);
+    int port = preferences.getInt(PORT_PREFERENCE, DEFAULT_PORT);
+
     try {
       if (mpd != null && mpd.isConnected()) {
         mpd.close();
@@ -95,11 +102,17 @@ public class AndroidMpdClient extends Activity {
   }
 
   private void handleSelectServerResult(Intent data) {
-    hostname = data.getStringExtra(SelectServerActivity.SERVER);
-    port = data.getIntExtra(SelectServerActivity.PORT, port);
+    String hostname = data.getStringExtra(SelectServerActivity.SERVER);
+    int port = data.getIntExtra(SelectServerActivity.PORT, DEFAULT_PORT);
     status.display("Server: " + hostname + ":" + port);
 
-    reconnect(hostname, port);
+    SharedPreferences preferences = getPreferences(MODE_PRIVATE);
+    SharedPreferences.Editor editor = preferences.edit();
+    editor.putString(HOSTNAME_PREFERENCE, hostname);
+    editor.putInt(PORT_PREFERENCE, port);
+    editor.commit();
+
+    reconnect();
   }
 
   private void handleSpeechRecognitionResult(Intent data) {
@@ -225,6 +238,10 @@ public class AndroidMpdClient extends Activity {
     final Context c = this;
     settingsButton.setOnClickListener(new OnClickListener() {
         public void onClick(View v) {
+          SharedPreferences preferences = getPreferences(MODE_PRIVATE);
+          String hostname = preferences.getString(HOSTNAME_PREFERENCE, DEFAULT_HOSTNAME);
+          int port = preferences.getInt(PORT_PREFERENCE, DEFAULT_PORT);
+
           Intent intent = new Intent(c, SelectServerActivity.class);
           intent.putExtra(SelectServerActivity.SERVER, hostname);
           intent.putExtra(SelectServerActivity.PORT, port);
