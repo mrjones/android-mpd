@@ -47,10 +47,6 @@ public class AndroidMpdClient extends Activity {
 
     reconnect(hostname, port);
 
-    UpdatePlaylistTask task = new UpdatePlaylistTask(
-      this, mpd, status, playListView);
-    task.execute();
-
     initializeListeners();
   }
 
@@ -64,6 +60,10 @@ public class AndroidMpdClient extends Activity {
       Log.v(Constants.LOG_TAG, "Uptime:" + mpd.getUptime());
       
       metadataCache = new MetadataCache(mpd);
+
+      UpdatePlaylistTask task = new UpdatePlaylistTask(
+        this, mpd, status, playListView);
+      task.execute();
     } catch(MPDException e) {
       Log.e(Constants.LOG_TAG, "onCreate", e);
       status.display("Error connecting: " + e.toString());
