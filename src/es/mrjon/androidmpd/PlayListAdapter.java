@@ -10,21 +10,27 @@ import android.widget.TextView;
 import java.util.List;
 
 public class PlayListAdapter extends ArrayAdapter<MPDSongListItem> {
-  private final Context context;
   private final List<MPDSongListItem> items;
+  private final LayoutInflater inflater;
 
   public PlayListAdapter(Context context, List<MPDSongListItem> items) {
     super(context, R.layout.playlist_row, items);
-    this.context = context;
     this.items = items;
+
+    this.inflater = (LayoutInflater) context
+      .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
   }
 
   @Override
-  public View getView(int position, View converterView, ViewGroup parent) {
-    LayoutInflater inflater = (LayoutInflater) context
-      .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
- 
-    View rowView = inflater.inflate(R.layout.playlist_row, parent, false);
+  public View getView(int position, View convertView, ViewGroup parent) {
+    View rowView;
+
+    if (convertView == null) {
+      rowView = inflater.inflate(R.layout.playlist_row, parent, false);
+    } else {
+      rowView = convertView;
+    }
+
     TextView titleText = (TextView) rowView.findViewById(R.id.song_title);
     titleText.setText(items.get(position).getSong().getTitle());
 
@@ -32,6 +38,5 @@ public class PlayListAdapter extends ArrayAdapter<MPDSongListItem> {
     artistText.setText(items.get(position).getSong().getArtist().toString());
 
     return rowView;
-  }
-  
+  }  
 }
