@@ -17,6 +17,7 @@ import android.widget.TextView;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import org.bff.javampd.MPD;
+import org.bff.javampd.MPDPlayer;
 import org.bff.javampd.exception.MPDException;
 import org.bff.javampd.objects.MPDSong;
 import java.net.UnknownHostException;
@@ -66,6 +67,16 @@ public class AndroidMpdClient extends Activity {
       Log.v(Constants.LOG_TAG, "Version:" + mpd.getVersion());
       Log.v(Constants.LOG_TAG, "Uptime:" + mpd.getUptime());
       
+      MPDPlayer.PlayerStatus playerStatus = mpd.getMPDPlayer().getStatus();
+
+      final Button pauseButton = (Button) findViewById(R.id.pause_button);
+      if (playerStatus == MPDPlayer.PlayerStatus.STATUS_PAUSED ||
+          playerStatus == MPDPlayer.PlayerStatus.STATUS_STOPPED) {
+        pauseButton.setText(">");
+      } else {
+        pauseButton.setText("||");
+      }
+
       metadataCache = new MetadataCache(mpd);
 
       UpdatePlaylistTask task = new UpdatePlaylistTask(
@@ -182,21 +193,19 @@ public class AndroidMpdClient extends Activity {
   }
 
   private void initializeListeners() {
-    Button playButton = (Button) findViewById(R.id.play_button);
-    playButton.setOnClickListener(new OnClickListener() {
-        public void onClick(View v) {
-          try {
-            mpd.getMPDPlayer().play();
-          } catch(MPDException e) {
-            Log.e(Constants.LOG_TAG, "Play", e);
-          }
-        }
-      });
-    Button pauseButton = (Button) findViewById(R.id.pause_button);
+    final Button pauseButton = (Button) findViewById(R.id.pause_button);
     pauseButton.setOnClickListener(new OnClickListener() {
         public void onClick(View v) {
           try {
-            mpd.getMPDPlayer().pause();
+            MPDPlayer.PlayerStatus status = mpd.getMPDPlayer().getStatus();
+            if (status == MPDPlayer.PlayerStatus.STATUS_PAUSED ||
+                status == MPDPlayer.PlayerStatus.STATUS_STOPPED) {
+              mpd.getMPDPlayer().play();
+              pauseButton.setText("||");
+            } else {
+              mpd.getMPDPlayer().pause();
+              pauseButton.setText(">");
+            }
           } catch(MPDException e) {
             Log.e(Constants.LOG_TAG, "Pause", e);
           }
