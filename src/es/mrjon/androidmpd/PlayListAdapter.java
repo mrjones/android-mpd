@@ -26,9 +26,10 @@ public class PlayListAdapter extends ArrayAdapter<MPDSongListItem> {
  
     View rowView = inflater.inflate(R.layout.playlist_row, parent, false);
     TextView titleText = (TextView) rowView.findViewById(R.id.song_title);
-    titleText.setText(items.get(position).toString());
+    titleText.setText(items.get(position).getSong().getTitle());
+
     TextView artistText = (TextView) rowView.findViewById(R.id.artist);
-    artistText.setText("Artist");
+    artistText.setText(items.get(position).getSong().getArtist().toString());
 
     return rowView;
   }
