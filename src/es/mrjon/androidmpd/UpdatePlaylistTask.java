@@ -52,8 +52,10 @@ public class UpdatePlaylistTask extends AsyncTask<Void, Void, List<MPDSongListIt
     } else {
       status.display("Playlist updated");
 
+      // playListView.setAdapter(
+      //   new ArrayAdapter<MPDSongListItem>(context, R.layout.playlist_row, playList));
       playListView.setAdapter(
-        new ArrayAdapter<MPDSongListItem>(context, R.layout.playlist_row, playList));
+        new PlayListAdapter(context, playList));
     }
   }
 }
